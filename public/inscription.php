@@ -6,6 +6,10 @@ require '../vendor/autoload.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nom = trim($_POST['nom']);
+    $prenom = trim($_POST['prenom']);
+    $date_naissance = trim($_POST['date_naissance']);
+    $adresse = trim($_POST['adresse']);
+    $telephone = trim($_POST['telephone']);
     $email = filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL);
     $password = trim($_POST['password']);
 
@@ -26,8 +30,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mot_de_passe_hash = password_hash($password, PASSWORD_DEFAULT);
     $code_validation = random_int(100000, 999999);
 
-    $stmt = $pdo->prepare("INSERT INTO utilisateurs_temp (nom, email, mot_de_passe, code_validation) VALUES (:nom, :email, :mot_de_passe, :code_validation)");
+    $stmt = $pdo->prepare("INSERT INTO utilisateurs_temp (nom, prenom, date_naissance, adresse, telephone, email, mot_de_passe, code_validation) 
+                           VALUES (:nom, :prenom, :date_naissance, :adresse, :telephone, :email, :mot_de_passe, :code_validation)");
     $stmt->bindParam(':nom', $nom, PDO::PARAM_STR);
+    $stmt->bindParam(':prenom', $prenom, PDO::PARAM_STR);
+    $stmt->bindParam(':date_naissance', $date_naissance, PDO::PARAM_STR);
+    $stmt->bindParam(':adresse', $adresse, PDO::PARAM_STR);
+    $stmt->bindParam(':telephone', $telephone, PDO::PARAM_STR);
     $stmt->bindParam(':email', $email, PDO::PARAM_STR);
     $stmt->bindParam(':mot_de_passe', $mot_de_passe_hash, PDO::PARAM_STR);
     $stmt->bindParam(':code_validation', $code_validation, PDO::PARAM_STR);
@@ -46,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $mail->setFrom('test@cocopw.fr', 'cocopw.fr');
             $mail->addAddress($email);
             $mail->Subject = 'Confirmez votre inscription';
-            $mail->Body = "Bonjour $nom,\n\nVotre code de validation est : $code_validation\nOu cliquez sur ce lien : http://localhost/verification.php?email=$email&code=$code_validation";
+            $mail->Body = "Bonjour $prenom,\n\nVotre code de validation est : $code_validation\nOu cliquez sur ce lien : http://localhost/verification.php?email=$email&code=$code_validation";
             $mail->send();
             header("Location: verification.php?email=$email");
             exit;
@@ -74,6 +83,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="mb-3">
                 <label class="form-label">Nom</label>
                 <input type="text" name="nom" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Prénom</label>
+                <input type="text" name="prenom" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Date de naissance</label>
+                <input type="date" name="date_naissance" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Adresse postale</label>
+                <input type="text" name="adresse" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Numéro de téléphone</label>
+                <input type="tel" name="telephone" class="form-control" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Email</label>

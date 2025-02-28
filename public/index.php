@@ -31,7 +31,7 @@ require '../config/config.php';
     <!-- Message de succès ou d'erreur -->
     <div id="message" class="alert" style="display:none;"></div>
     <a href="mesrendezvous.php" class="btn btn-secondary">Mes Rendez-vous</a>
-
+    <a href="edit_info.php" class="btn btn-secondary">Mon Compte</a>
     <div id='calendar'></div>
     
     <script>
