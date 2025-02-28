@@ -1,6 +1,9 @@
 <?php
 require '../config/config.php';
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
+require '../vendor/autoload.php'; // Assure-toi d'avoir installé PHPMailer
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $nom = trim($_POST['nom']);
     $email = filter_var(trim($_POST['email']), FILTER_VALIDATE_EMAIL);
@@ -34,16 +37,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt->bindParam(':mot_de_passe', $mot_de_passe_hash, PDO::PARAM_STR);
     $stmt->bindParam(':code_validation', $code_validation, PDO::PARAM_STR);
 
-    if ($stmt->execute()) {
-        // Envoyer l'email de confirmation
-        $to = $email;
-        $subject = "Confirmez votre inscription";
-        $message = "Bonjour $nom,\n\nVotre code de validation est : $code_validation\nOu cliquez sur le lien suivant pour confirmer : http://localhost/verifier.php?email=$email&code=$code_validation";
-        $headers = "From: noreply@mon-site.com";
-
-        mail($to, $subject, $message, $headers);
-
-        echo "Un email de confirmation a été envoyé. Vérifiez votre boîte mail.";
+    if ($stmt->execute()) {$mail = new PHPMailer(true);
+        try {
+            // Paramètres SMTP
+            $mail->isSMTP();
+            $mail->Host = 'sandbox.smtp.mailtrap.io';
+            $mail->SMTPAuth = true;
+            $mail->Username = '5eea6958f50ffa'; // Remplace par ton adresse Gmail
+            $mail->Password = '7fce1160f6a26b';   // Remplace par ton mot de passe ou un App Password
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 2525;
+        
+            // Destinataire et contenu
+            $mail->setFrom('test@cocopw.fr', 'cocopw.fr');
+            $mail->addAddress($email);
+            $mail->Subject = 'Confirmez votre inscription';
+            $mail->Body = "Bonjour $nom,\n\nVotre code de validation est : $code_validation\nOu cliquez sur ce lien : http://localhost/verifier.php?email=$email&code=$code_validation";
+        
+            // Envoi du mail
+            $mail->send();
+            echo "Email de confirmation envoyé !";
+        } catch (Exception $e) {
+            echo "Erreur lors de l'envoi de l'email : {$mail->ErrorInfo}";
+        }
     } else {
         echo "Erreur lors de l'inscription.";
     }
