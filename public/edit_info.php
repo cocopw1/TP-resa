@@ -31,9 +31,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif (isset($_POST['delete_account'])) {
         $stmt = $pdo->prepare("DELETE FROM utilisateurs WHERE id = ?");
         if ($stmt->execute([$user_id])) {
+            $stmt = $pdo->prepare("DELETE FROM rdv WHERE user_id = ?");
+        if ($stmt->execute([$user_id])) {
             session_destroy();
             header("Location: inscription.php");
             exit;
+        } else {
+            $error = "Erreur lors de la suppression du compte.";
+        }
         } else {
             $error = "Erreur lors de la suppression du compte.";
         }
